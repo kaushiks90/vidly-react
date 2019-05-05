@@ -5,13 +5,15 @@ import Like from "./common/Like";
 import Pagination from "./common/Pagination";
 import ListGroup from "./common/ListGroup";
 import { paginate } from "../utils/paginate";
+import _ from "lodash";
 class Movies extends Component {
   state = {
     movies: [],
     genres: [],
     genreSelected: "",
     currentPage: 1,
-    pageSize: 4
+    pageSize: 4,
+    sortColumn: { path: "title", order: "asc" }
   };
   componentDidMount() {
     const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
@@ -35,11 +37,22 @@ class Movies extends Component {
   handleGenreChange = genre => {
     this.setState({ genreSelected: genre, currentPage: 1 });
   };
+  handleSort = path => {
+    const sortColumn = { ...this.state.sortColumn };
+    if (sortColumn.path === path) {
+      sortColumn.order = sortColumn.order === "asc" ? "desc" : "asc";
+    } else {
+      sortColumn.path = path;
+      sortColumn.order = "asc";
+    }
+    this.setState({ sortColumn });
+  };
   render() {
     const {
       pageSize,
       currentPage,
       genreSelected,
+      sortColumn,
       movies: allMovies
     } = this.state;
 
@@ -47,8 +60,8 @@ class Movies extends Component {
       genreSelected && genreSelected._id
         ? allMovies.filter(movies => movies.genre._id === genreSelected._id)
         : allMovies;
-
-    const movies = paginate(filtered, currentPage, pageSize);
+    const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+    const movies = paginate(sorted, currentPage, pageSize);
     const count = filtered.length;
     if (count === 0) return <p>There are {count} movies </p>;
     return (
@@ -67,10 +80,14 @@ class Movies extends Component {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Genre</th>
-                  <th>NumberInStock</th>
-                  <th>DailyRentalRate</th>
+                  <th onClick={() => this.handleSort("title")}>Title</th>
+                  <th onClick={() => this.handleSort("genre.name")}>Genre</th>
+                  <th onClick={() => this.handleSort("numberInStock")}>
+                    NumberInStock
+                  </th>
+                  <th onClick={() => this.handleSort("dailyRentalRate")}>
+                    DailyRentalRate
+                  </th>
                   <th />
                   <th />
                 </tr>
