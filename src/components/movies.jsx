@@ -19,18 +19,18 @@ class Movies extends Component {
     const genres = [{ _id: "", name: "All Genres" }, ...getGenres()];
     this.setState({ movies: getMovies(), genres });
   }
-  handleDelete(movie) {
-    let newMovies = [...this.state.movies];
-    newMovies = newMovies.filter(x => x._id !== movie._id);
-    this.setState({ movies: newMovies });
-  }
-  handleLike(movie) {
-    movie.liked = !movie.liked;
-    let newMovies = [...this.state.movies];
-    let index = newMovies.indexOf(movie);
-    newMovies[index] = movie;
-    this.setState({ movies: newMovies });
-  }
+  handleDelete = movie => {
+    const movies = this.state.movies.filter(m => m._id !== movie._id);
+    this.setState({ movies });
+  };
+  handleLike = movie => {
+    const movies = [...this.state.movies];
+    const index = movies.indexOf(movie);
+    movies[index] = { ...movies[index] };
+    movies[index].liked = !movies[index].liked;
+    this.setState({ movies });
+  };
+
   handlePageChange = page => {
     this.setState({ currentPage: page });
   };
